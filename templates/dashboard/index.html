@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #0f2c59;
+            --secondary-color: #1a4b8c;
+            --accent-color: #e04f5f;
+            --warning-color: #f39c12;
+            --success-color: #27ae60;
+            --bg-light: #f8f9fa;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: #2c3e50; }
+        .top-navbar { background-color: var(--primary-color); padding: 1rem 2rem; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .card-institucional { border: none; border-radius: 10px; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.03); margin-bottom: 1.5rem; }
+
+        /* Estilos Pestañas */
+        .nav-tabs .nav-link { color: #7f8c8d; font-weight: 600; border: none; padding: 1rem 1.5rem; }
+        .nav-tabs .nav-link.active { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); background: transparent; }
+
+        /* Estilos Informe Word */
+        .informe-container { font-family: 'Merriweather', serif; line-height: 1.8; color: #34495e; max-width: 900px; margin: 0 auto; padding: 2rem; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 8px;}
+        .informe-container h2 { font-family: 'Inter', sans-serif; color: var(--primary-color); font-weight: 700; margin-top: 2rem; font-size: 1.5rem; border-bottom: 2px solid #ecf0f1; padding-bottom: 0.5rem;}
+        .informe-container h3 { font-family: 'Inter', sans-serif; color: var(--secondary-color); font-weight: 600; margin-top: 1.5rem; font-size: 1.2rem;}
+
+        /* Tablas */
+        .table-institucional thead { background-color: var(--primary-color); color: white; }
+        .table-institucional th { font-weight: 600; border: none; }
+        .badge-riesgo { background-color: var(--accent-color); color: white; }
+    </style>
+</head>
+<body>
+
+<header class="top-navbar d-flex justify-content-between align-items-center mb-4">
+    <h4 class="m-0 fw-bold">Tablero Estratégico SIMCE</h4>
+    <span class="badge bg-light text-dark">Módulo Estratégico SIMCE</span>
+</header>
+
+<div class="container-fluid px-4 pb-5">
+
+    <ul class="nav nav-tabs mb-4 border-0 border-bottom" id="simceTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button" role="tab">Dashboard Interactivo</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="estrategia-tab" data-bs-toggle="tab" data-bs-target="#estrategia" type="button" role="tab">Brechas, Alertas y Plan de Acción</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="informe-tab" data-bs-toggle="tab" data-bs-target="#informe" type="button" role="tab">📑 Informe Ejecutivo (Word)</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="simceTabsContent">
+
+        <div class="tab-pane fade show active" id="dashboard" role="tabpanel">
+            <div class="card card-institucional p-3 mb-4">
+                <form method="GET" action="." id="filtroForm" class="row align-items-end g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold text-muted small">Filtrar por Curso</label>
+                        <select name="curso" class="form-select" onchange="document.getElementById('filtroForm').submit();">
+                            <option value="">Todos los cursos</option>
+                            {% for c in cursos_list %}
+                            <option value="{{ c.id }}" {% if curso_seleccionado == c.id %}selected{% endif %}>{{ c.nivel }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold text-muted small">Filtrar por Asignatura</label>
+                        <select name="asignatura" class="form-select" onchange="document.getElementById('filtroForm').submit();">
+                            <option value="">Todas las asignaturas</option>
+                            <option value="MAT" {% if asignatura_seleccionada == 'MAT' %}selected{% endif %}>Matemática</option>
+                            <option value="LEN" {% if asignatura_seleccionada == 'LEN' %}selected{% endif %}>Lenguaje</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary w-100">Limpiar Filtros</a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-3"><div class="card card-institucional p-4"><div class="text-muted small fw-bold text-uppercase">Promedio Matemática</div><div class="fs-2 fw-bold text-danger">{{ stats.promedio_matematica }}%</div></div></div>
+                <div class="col-md-3"><div class="card card-institucional p-4"><div class="text-muted small fw-bold text-uppercase">Promedio Lenguaje</div><div class="fs-2 fw-bold" style="color: var(--primary-color);">{{ stats.promedio_lenguaje }}%</div></div></div>
+                <div class="col-md-3"><div class="card card-institucional p-4"><div class="text-muted small fw-bold text-uppercase">Cursos Críticos (MAT)</div><div class="fs-2 fw-bold text-danger">{{ stats.cursos_criticos }}</div></div></div>
+                <div class="col-md-3"><div class="card card-institucional p-4"><div class="text-muted small fw-bold text-uppercase">Estudiantes en Riesgo</div><div class="fs-2 fw-bold">{{ stats.total_riesgo }}</div></div></div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-8"><div class="card card-institucional p-4"><h5 class="fw-bold mb-3" style="color: var(--primary-color);">Brechas de Logro por Curso</h5><div style="height: 300px;"><canvas id="cursoChart"></canvas></div></div></div>
+                <div class="col-md-4"><div class="card card-institucional p-4"><h5 class="fw-bold mb-3" style="color: var(--primary-color);">Volumen de Riesgo</h5><div style="height: 300px;"><canvas id="riesgoChart"></canvas></div></div></div>
+            </div>
+
+            <div class="card card-institucional overflow-hidden">
+                <table class="table table-institucional table-hover m-0">
+                    <thead><tr><th>Curso</th><th>Asignatura</th><th>Logro (%)</th><th>Puntaje SIMCE</th><th>Estudiantes <50%</th><th>Preguntas Críticas</th><th>Estado</th></tr></thead>
+                    <tbody>
+                    {% for fila in tabla_resultados %}
+                    <tr>
+                        <td class="fw-bold">{{ fila.curso.nivel }}</td><td>{{ fila.get_asignatura_display }}</td><td>{{ fila.porcentaje_logro|floatformat:1 }}%</td><td>{{ fila.puntaje_simce|floatformat:1 }}</td><td>{{ fila.estudiantes_riesgo }} alumnos</td><td>{{ fila.preguntas_criticas }} ítems</td>
+                        <td>
+                            {% if fila.porcentaje_logro < 40 %}<span class="badge badge-riesgo">Urgente</span>{% elif fila.porcentaje_logro < 55 %}<span class="badge bg-warning text-dark">Atención</span>{% else %}<span class="badge bg-success">Controlado</span>{% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="text-center py-4">No hay datos para esta selección.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="estrategia" role="tabpanel">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card card-institucional p-4 h-100">
+                        <h5 class="fw-bold mb-4" style="color: var(--primary-color);">Análisis de Brechas entre Paralelos</h5>
+                        <table class="table table-sm table-hover align-middle">
+                            <thead class="table-light"><tr><th>Nivel</th><th>Asignatura</th><th>Brecha</th><th>Diagnóstico</th></tr></thead>
+                            <tbody>
+                            {% for b in brechas %}
+                            <tr><td class="fw-bold">{{ b.nivel }}</td><td>{{ b.asignatura }}</td><td><span class="badge {% if b.brecha > 5 %}badge-riesgo{% else %}bg-secondary{% endif %}">{{ b.brecha }} pts</span></td><td class="small">{{ b.lectura }}</td></tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card card-institucional p-4 h-100">
+                        <h5 class="fw-bold mb-4" style="color: var(--primary-color);">Sistema de Alertas Tempranas</h5>
+                        <table class="table table-sm table-hover align-middle">
+                            <thead class="table-light"><tr><th>Nivel</th><th>Criterio</th><th>Acción Directiva</th></tr></thead>
+                            <tbody>
+                            {% for a in alertas %}
+                            <tr>
+                                <td><span class="badge {% if a.nivel == 'Alto' or a.nivel == 'Institucional' %}badge-riesgo{% else %}bg-warning text-dark{% endif %}">{{ a.nivel }}</span></td>
+                                <td class="small fw-bold">{{ a.criterio }}</td><td class="small">{{ a.accion }}</td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="card card-institucional p-4">
+                        <h5 class="fw-bold mb-4" style="color: var(--primary-color);">Plan Estratégico 30-60-90 Días</h5>
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light"><tr><th>Plazo</th><th>Foco / Curso</th><th>Acción Pedagógica</th><th>Responsable</th></tr></thead>
+                            <tbody>
+                            {% for p in plan_accion %}
+                            <tr><td class="fw-bold text-primary">{{ p.plazo }}</td><td>{{ p.foco }}</td><td>{{ p.accion }}</td><td class="small text-muted">{{ p.resp }}</td></tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="informe" role="tabpanel">
+            <div class="informe-container">
+                <div class="text-center mb-5 border-bottom pb-4">
+                    <h1 class="fw-bold" style="color: var(--primary-color); font-family: 'Inter', sans-serif;">Informe Ejecutivo de Análisis de Resultados SIMCE</h1>
+                    <p class="text-muted">Ensayos de Matemática y Lenguaje - Mayo 2026</p>
+                </div>
+
+                <h2>1. Resumen Ejecutivo</h2>
+                <p>El análisis evidencia una brecha institucional relevante entre asignaturas: Matemática presenta un promedio aproximado de logro de 41.0%, mientras que Lenguaje alcanza 56.1%. Esta diferencia exige declarar Matemática como prioridad técnica inmediata, especialmente en II° medio y 6° básico.</p>
+                <p>El comportamiento de los datos no es homogéneo. Existen cursos con desempeño crítico, cursos con brechas entre paralelos y niveles donde la cantidad de preguntas bajo 40% muestra debilidades estructurales más que errores puntuales.</p>
+
+                <h2>2. Diagnóstico Institucional</h2>
+                <p>La institución debe pasar desde una lógica de aplicación de ensayos hacia una <strong>lógica de gestión intensiva de brechas</strong>. Cada ensayo debe traducirse en decisiones de reenseñanza, acompañamiento docente y ajuste de planificación.</p>
+                <p>La principal señal crítica se concentra en Matemática, donde <strong>II° medio A, II° medio B y 6° A</strong> presentan niveles de logro bajo 40%. Esto configura un riesgo directo para la trayectoria académica y futuros resultados PAES.</p>
+
+                <h2>3. Conclusión y Estrategia Inmediata</h2>
+                <p>La mejora rápida es posible si el establecimiento transforma los datos en decisiones semanales. El foco no debe ser aplicar más ensayos, sino convertir cada resultado en reenseñanza, retroalimentación y acompañamiento docente.</p>
+                <div class="alert alert-danger mt-4" role="alert">
+                    <strong>Prioridad Inmediata:</strong> Implementar un Plan de Rescate Matemático de 8 semanas, con diagnóstico por OA, reenseñanza focalizada y miniensayos semanales.
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const ctxCursos = document.getElementById('cursoChart').getContext('2d');
+    new Chart(ctxCursos, {
+        type: 'bar',
+        data: {
+            labels: JSON.parse('{{ cursos_labels|safe }}'),
+            datasets: [
+                { label: 'Matemática (%)', data: JSON.parse('{{ logro_matematica|safe }}'), backgroundColor: '#e04f5f', borderRadius: 4 },
+                { label: 'Lenguaje (%)', data: JSON.parse('{{ logro_lenguaje|safe }}'), backgroundColor: '#0f2c59', borderRadius: 4 }
+            ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
+    });
+
+    const ctxRiesgo = document.getElementById('riesgoChart').getContext('2d');
+    new Chart(ctxRiesgo, {
+        type: 'doughnut',
+        data: { labels: JSON.parse('{{ riesgo_labels|safe }}'), datasets: [{ data: JSON.parse('{{ riesgo_data|safe }}'), backgroundColor: ['#e04f5f', '#27ae60'], borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '70%' }
+    });
+</script>
+</body>
+</html>
