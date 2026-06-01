@@ -1,185 +1,347 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero Estratégico SIMCE | CCL</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Merriweather:wght@300;400;700;900&display=swap" rel="stylesheet">
 
     <style>
-        :root {
-            --primary-color: #0f2c59;
-            --secondary-color: #1a4b8c;
-            --accent-color: #e04f5f;
-            --warning-color: #f39c12;
-            --success-color: #27ae60;
-            --bg-light: #f8f9fa;
-        }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: #2c3e50; }
-        .top-navbar { background-color: var(--primary-color); padding: 1rem 2rem; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .card-institucional { border: none; border-radius: 10px; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.03); margin-bottom: 1.5rem; }
+        :root { --ccl-blue: #002B5C; --ccl-red: #C8102E; --ccl-gold: #D4AF37; --bg-premium: #F7F7F9; --text-dark: #1A1A1A; --text-muted: #6B7280; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-premium); color: var(--text-dark); -webkit-font-smoothing: antialiased; }
+        .premium-navbar { background-color: var(--ccl-blue); padding: 1.5rem 2rem; box-shadow: 0 4px 15px rgba(0, 43, 92, 0.2); }
+        .brand-title { font-family: 'Merriweather', serif; font-weight: 900; color: #ffffff; font-size: 1.6rem; margin: 0; line-height: 1.2; letter-spacing: 0.5px; }
+        .card-premium { border: none; border-radius: 24px; background: #ffffff; box-shadow: 0 20px 40px rgba(0, 43, 92, 0.04); margin-bottom: 1.5rem; transition: all 0.3s ease; }
+        .kpi-title { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; }
+        .kpi-value { font-family: 'Merriweather', serif; font-size: 3rem; font-weight: 300; color: var(--ccl-blue); line-height: 1; margin: 0.5rem 0; }
+        .kpi-value.alert-red { color: var(--ccl-red); }
 
-        /* Estilos Pestañas */
-        .nav-tabs .nav-link { color: #7f8c8d; font-weight: 600; border: none; padding: 1rem 1.5rem; }
-        .nav-tabs .nav-link.active { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); background: transparent; }
+        .nav-pills-custom .nav-link { border-radius: 50px; color: var(--text-muted); font-weight: 600; padding: 0.75rem 1.5rem; margin-right: 0.5rem; transition: all 0.3s; }
+        .nav-pills-custom .nav-link.active { background-color: var(--ccl-blue); color: white; box-shadow: 0 8px 20px rgba(0, 43, 92, 0.2); }
 
-        /* Estilos Informe Word */
-        .informe-container { font-family: 'Merriweather', serif; line-height: 1.8; color: #34495e; max-width: 900px; margin: 0 auto; padding: 2rem; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 8px;}
-        .informe-container h2 { font-family: 'Inter', sans-serif; color: var(--primary-color); font-weight: 700; margin-top: 2rem; font-size: 1.5rem; border-bottom: 2px solid #ecf0f1; padding-bottom: 0.5rem;}
-        .informe-container h3 { font-family: 'Inter', sans-serif; color: var(--secondary-color); font-weight: 600; margin-top: 1.5rem; font-size: 1.2rem;}
+        /* Menú Vertical para Expediente */
+        .sidebar-pills .nav-link { text-align: left; border-radius: 12px; color: var(--text-muted); font-weight: 500; margin-bottom: 0.5rem; padding: 1rem 1.5rem; transition: all 0.2s; border: 1px solid transparent; }
+        .sidebar-pills .nav-link:hover { background-color: #F3F4F6; }
+        .sidebar-pills .nav-link.active { background-color: #EFF6FF; color: var(--ccl-blue); font-weight: 700; border: 1px solid #BFDBFE; }
 
-        /* Tablas */
-        .table-institucional thead { background-color: var(--primary-color); color: white; }
-        .table-institucional th { font-weight: 600; border: none; }
-        .badge-riesgo { background-color: var(--accent-color); color: white; }
+        .form-select-premium { border-radius: 16px; border: 1px solid #E5E7EB; padding: 0.8rem 1.2rem; background-color: #F9FAFB; font-weight: 500; color: var(--ccl-blue); }
+        .table-premium th { font-weight: 600; color: var(--text-muted); border-bottom: 2px solid #F3F4F6; text-transform: uppercase; font-size: 0.8rem; }
+        .table-premium td { vertical-align: middle; border-bottom: 1px solid #F3F4F6; font-weight: 500; color: var(--ccl-blue); }
+        .badge-riesgo { background-color: #FEF2F2; color: var(--ccl-red); border: 1px solid #FECACA; padding: 0.5em 1em; border-radius: 8px;}
+        .badge-ok { background-color: #F0FDF4; color: #166534; border: 1px solid #BBF7D0; padding: 0.5em 1em; border-radius: 8px;}
+        .badge-warning-custom { background-color: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; padding: 0.5em 1em; border-radius: 8px;}
+        h5.section-title { font-family: 'Merriweather', serif; font-weight: 700; color: var(--ccl-blue); font-size: 1.25rem; }
+        .chart-summary { font-size: 0.85rem; color: #6B7280; line-height: 1.5; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed #E5E7EB; }
+        .informe-container { font-family: 'Merriweather', serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 2rem; background: white; border-radius: 16px;}
+
+        .list-premium li { margin-bottom: 0.8rem; line-height: 1.6; }
     </style>
 </head>
 <body>
 
-<header class="top-navbar d-flex justify-content-between align-items-center mb-4">
-    <h4 class="m-0 fw-bold">Tablero Estratégico SIMCE</h4>
-    <span class="badge bg-light text-dark">Módulo Estratégico SIMCE</span>
-</header>
+<nav class="premium-navbar d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center px-4">
+        <img src="{% static 'logo.png' %}" alt="Colegio Concepción Linares" height="60" class="me-4 drop-shadow">
+        <div>
+            <h1 class="brand-title">Colegio Concepción Linares</h1>
+            <span class="badge mt-2" style="background-color: var(--ccl-gold); color: var(--ccl-blue); font-weight: 800; font-size: 0.8rem; letter-spacing: 0.5px; padding: 0.5em 1em;">Módulo Estratégico SIMCE</span>
+        </div>
+    </div>
+</nav>
 
-<div class="container-fluid px-4 pb-5">
+<div class="container-fluid px-5 pb-5 mt-4">
 
-    <ul class="nav nav-tabs mb-4 border-0 border-bottom" id="simceTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button" role="tab">Dashboard Interactivo</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="estrategia-tab" data-bs-toggle="tab" data-bs-target="#estrategia" type="button" role="tab">Brechas, Alertas y Plan de Acción</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="informe-tab" data-bs-toggle="tab" data-bs-target="#informe" type="button" role="tab">📑 Informe Ejecutivo (Word)</button>
-        </li>
+    <ul class="nav nav-pills nav-pills-custom mb-5" id="simceTabs" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#dashboard" type="button">Panel Interactivo</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#estrategia" type="button">Estrategia Institucional</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#informe" type="button">Documento Ejecutivo General</button></li>
     </ul>
 
     <div class="tab-content" id="simceTabsContent">
 
         <div class="tab-pane fade show active" id="dashboard" role="tabpanel">
-            <div class="card card-institucional p-3 mb-4">
-                <form method="GET" action="." id="filtroForm" class="row align-items-end g-3">
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold text-muted small">Filtrar por Curso</label>
-                        <select name="curso" class="form-select" onchange="document.getElementById('filtroForm').submit();">
-                            <option value="">Todos los cursos</option>
-                            {% for c in cursos_list %}
-                            <option value="{{ c.id }}" {% if curso_seleccionado == c.id %}selected{% endif %}>{{ c.nivel }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold text-muted small">Filtrar por Asignatura</label>
-                        <select name="asignatura" class="form-select" onchange="document.getElementById('filtroForm').submit();">
-                            <option value="">Todas las asignaturas</option>
-                            <option value="MAT" {% if asignatura_seleccionada == 'MAT' %}selected{% endif %}>Matemática</option>
-                            <option value="LEN" {% if asignatura_seleccionada == 'LEN' %}selected{% endif %}>Lenguaje</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary w-100">Limpiar Filtros</a>
-                    </div>
+            <div class="card card-premium p-4 mb-4">
+                <form method="GET" action="." id="filtroForm" class="row align-items-end g-4">
+                    <div class="col-md-3"><label class="kpi-title mb-2">1. Filtrar Curso</label><select name="curso" class="form-select form-select-premium" onchange="document.getElementById('filtroForm').submit();"><option value="">Institucional (Todos)</option>{% for c in cursos_list %}<option value="{{ c.id }}" {% if curso_seleccionado == c.id %}selected{% endif %}>{{ c.nivel }}</option>{% endfor %}</select></div>
+                    <div class="col-md-3"><label class="kpi-title mb-2">2. Asignatura</label><select name="asignatura" class="form-select form-select-premium" onchange="document.getElementById('filtroForm').submit();"><option value="">Global</option><option value="MAT" {% if asignatura_seleccionada == 'MAT' %}selected{% endif %}>Matemática</option><option value="LEN" {% if asignatura_seleccionada == 'LEN' %}selected{% endif %}>Lenguaje</option></select></div>
+                    <div class="col-md-4"><label class="kpi-title mb-2">3. Buscar Estudiante</label><select name="estudiante" class="form-select form-select-premium" onchange="document.getElementById('filtroForm').submit();"><option value="">Seleccionar Alumno(a)...</option>{% for est in lista_estudiantes %}<option value="{{ est }}" {% if estudiante_seleccionado == est %}selected{% endif %}>{{ est }}</option>{% endfor %}</select></div>
+                    <div class="col-md-2"><a href="{% url 'dashboard' %}" class="btn w-100" style="background-color: #E5E7EB; color: var(--ccl-blue); border-radius: 16px; padding: 0.8rem; font-weight: 600;">Limpiar</a></div>
                 </form>
             </div>
 
-            <div class="row g-4 mb-4">
-                <div class="col-md-3"><div class="card card-institucional p-4"><div class="text-muted small fw-bold text-uppercase">Promedio Matemática</div><div class="fs-2 fw-bold text-danger">{{ stats.promedio_matematica }}%</div></div></div>
-                <div class="col-md-3"><div class="card card-institucional p-4"><div class="text-muted small fw-bold text-uppercase">Promedio Lenguaje</div><div class="fs-2 fw-bold" style="color: var(--primary-color);">{{ stats.promedio_lenguaje }}%</div></div></div>
-                <div class="col-md-3"><div class="card card-institucional p-4"><div class="text-muted small fw-bold text-uppercase">Cursos Críticos (MAT)</div><div class="fs-2 fw-bold text-danger">{{ stats.cursos_criticos }}</div></div></div>
-                <div class="col-md-3"><div class="card card-institucional p-4"><div class="text-muted small fw-bold text-uppercase">Estudiantes en Riesgo</div><div class="fs-2 fw-bold">{{ stats.total_riesgo }}</div></div></div>
+            {% if mostrar_estudiante %}
+            <div class="card card-premium p-5 mb-4" style="border-left: 8px solid var(--ccl-gold);">
+                <div class="d-flex justify-content-between align-items-center mb-5 pb-4 border-bottom">
+                    <div><h3 class="fw-bold mb-2" style="font-size: 2.5rem; color: var(--ccl-blue); font-family: 'Merriweather', serif;">{{ perfil_estudiante.nombre }}</h3><span class="badge" style="background-color: var(--ccl-blue); font-size: 1rem; padding: 0.5em 1em; border-radius: 12px;">{{ perfil_estudiante.curso }}</span></div>
+                    <div class="text-end"><span class="kpi-title">Expediente Individual Institucional</span></div>
+                </div>
+                <div class="row g-5">
+                    <div class="col-md-6"><div class="h-100 p-4" style="background: #FAFAFA; border-radius: 20px;"><h5 class="section-title mb-4">Matemática</h5><div class="mb-3"><span class="kpi-title d-block mb-2">Estado UTP</span><span class="badge {% if perfil_estudiante.mat_estado == 'Destacado' %}badge-ok{% elif perfil_estudiante.mat_estado == 'Riesgo' %}badge-riesgo{% else %}badge-warning-custom{% endif %} fs-6">{{ perfil_estudiante.mat_estado }}</span></div><p class="mb-0 mt-4" style="color: var(--ccl-blue); font-size: 1.1rem; line-height: 1.6;">{{ perfil_estudiante.mat_notas }}</p></div></div>
+                    <div class="col-md-6"><div class="h-100 p-4" style="background: #FAFAFA; border-radius: 20px;"><h5 class="section-title mb-4" style="color: #8e44ad;">Lenguaje</h5><div class="mb-3"><span class="kpi-title d-block mb-2">Estado UTP</span><span class="badge {% if perfil_estudiante.len_estado == 'Destacado' %}badge-ok{% elif perfil_estudiante.len_estado == 'Riesgo' %}badge-riesgo{% else %}badge-warning-custom{% endif %} fs-6">{{ perfil_estudiante.len_estado }}</span></div><p class="mb-0 mt-4" style="color: var(--ccl-blue); font-size: 1.1rem; line-height: 1.6;">{{ perfil_estudiante.len_notas }}</p></div></div>
+                </div>
             </div>
 
-            <div class="row g-4 mb-4">
-                <div class="col-md-8"><div class="card card-institucional p-4"><h5 class="fw-bold mb-3" style="color: var(--primary-color);">Brechas de Logro por Curso</h5><div style="height: 300px;"><canvas id="cursoChart"></canvas></div></div></div>
-                <div class="col-md-4"><div class="card card-institucional p-4"><h5 class="fw-bold mb-3" style="color: var(--primary-color);">Volumen de Riesgo</h5><div style="height: 300px;"><canvas id="riesgoChart"></canvas></div></div></div>
+            {% elif mostrar_detalle %}
+            <div class="card card-premium p-4 mb-4">
+                <div class="d-flex align-items-start">
+
+                    <div class="nav flex-column nav-pills sidebar-pills me-4" style="min-width: 280px;" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                        <span class="kpi-title mb-3 px-3">Apartados del Informe</span>
+                        <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#v-1">1. Resultados Generales</button>
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#v-2">2. Análisis Habilidades</button>
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#v-3">3. Fortalezas / Debilidades</button>
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#v-4">4. Análisis Contenidos</button>
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#v-5">5. Preguntas Críticas</button>
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#v-6">6. Análisis Estudiantes</button>
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#v-7">7. Estrategias Sugeridas</button>
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#v-8">8. Actividades de Aula</button>
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#v-9">9. Plan de Acción UTP</button>
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#v-10">10. Conclusión Directiva</button>
+                    </div>
+
+                    <div class="tab-content flex-grow-1 p-4" id="v-pills-tabContent" style="background: #FAFAFA; border-radius: 20px; min-height: 550px;">
+
+                        <div class="tab-pane fade show active" id="v-1">
+                            <h5 class="section-title mb-4">1. Resultados Generales</h5>
+                            <p style="font-size: 1.15rem; line-height: 1.8; color: var(--text-dark);">{{ detalle_informe.resultados_generales }}</p>
+                        </div>
+
+                        <div class="tab-pane fade" id="v-2">
+                            <h5 class="section-title mb-4">2. Análisis de Habilidades</h5>
+                            <div style="height: 350px; width: 100%;"><canvas id="habilidadesChart"></canvas></div>
+                            <p class="chart-summary"><strong>Métrica:</strong> Logro porcentual del curso desglosado por habilidades cognitivas evaluadas.</p>
+                        </div>
+
+                        <div class="tab-pane fade" id="v-3">
+                            <h5 class="section-title mb-4 text-success">3. Análisis de Fortalezas</h5>
+                            <ul class="list-premium" style="color: #166534; font-size: 1.1rem;">{% for f in detalle_informe.fortalezas %}<li>{{ f }}</li>{% endfor %}</ul>
+                            <h5 class="section-title mt-5 mb-4 text-danger">Análisis de Debilidades Estructurales</h5>
+                            <ul class="list-premium" style="color: #991B1B; font-size: 1.1rem;">{% for d in detalle_informe.debilidades %}<li>{{ d }}</li>{% endfor %}</ul>
+                        </div>
+
+                        <div class="tab-pane fade" id="v-4">
+                            <h5 class="section-title mb-4">4. Análisis por Eje y Contenidos</h5>
+                            <div style="height: 350px; width: 100%;"><canvas id="contenidosChart"></canvas></div>
+                            <p class="chart-summary"><strong>Métrica:</strong> Nivel de dominio segmentado por ejes temáticos del currículum ministerial.</p>
+                        </div>
+
+                        <div class="tab-pane fade" id="v-5">
+                            <h5 class="section-title mb-4" style="color: var(--ccl-red);">5. Preguntas Críticas SIMCE (<40% logro)</h5>
+                            <div class="p-4 rounded mb-4" style="background: #FEF2F2; border: 1px solid #FECACA;">
+                                <p class="m-0" style="color: #991B1B; font-size: 1.15rem; line-height: 1.6;">{{ detalle_informe.preguntas_criticas }}</p>
+                            </div>
+                            <div class="mt-4" style="height: 250px; max-width: 400px; margin: 0 auto;"><canvas id="preguntasCursoChart"></canvas></div>
+                        </div>
+
+                        <div class="tab-pane fade" id="v-6">
+                            <h5 class="section-title mb-4">6. Análisis de Grupo Estudiantes</h5>
+                            <p style="font-size: 1.1rem; line-height: 1.8; color: var(--text-dark);">{{ detalle_informe.analisis_estudiantes }}</p>
+                            <h6 class="fw-bold mb-4 mt-5" style="color: var(--ccl-blue);">Gráfico Comparativo de Desempeños Extremos</h6>
+                            <div style="height: 250px; width: 100%;"><canvas id="estudiantesChart"></canvas></div>
+                        </div>
+
+                        <div class="tab-pane fade" id="v-7">
+                            <h5 class="section-title mb-4">7. Estrategias de Mejora Sugeridas</h5>
+                            <ul class="list-premium" style="color: var(--ccl-blue); font-size: 1.15rem;">{% for est in detalle_informe.estrategias %}<li>{{ est }}</li>{% endfor %}</ul>
+                        </div>
+
+                        <div class="tab-pane fade" id="v-8">
+                            <h5 class="section-title mb-4">8. Propuesta de Actividades de Aula</h5>
+                            <div class="p-4 rounded" style="background: #F0FDF4; border: 1px solid #BBF7D0;">
+                                <ul class="list-premium m-0" style="color: #166534; font-size: 1.15rem;">{% for act in detalle_informe.actividades_aplicables %}<li>{{ act }}</li>{% endfor %}</ul>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="v-9">
+                            <h5 class="section-title mb-4">9. Plan de Acción de Departamento</h5>
+                            <ul class="list-premium" style="font-size: 1.15rem; line-height: 1.8; color: var(--text-dark);">{% for plan in detalle_informe.plan_accion_sugerido %}<li>{{ plan }}</li>{% endfor %}</ul>
+                        </div>
+
+                        <div class="tab-pane fade" id="v-10">
+                            <h5 class="section-title mb-4" style="color: var(--ccl-gold);">10. Conclusión y Meta Institucional</h5>
+                            <div class="p-5 rounded" style="background: var(--ccl-blue); color: white;">
+                                <p class="m-0" style="font-size: 1.25rem; line-height: 1.8;">{{ detalle_informe.conclusion }}</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
             </div>
 
-            <div class="card card-institucional overflow-hidden">
-                <table class="table table-institucional table-hover m-0">
-                    <thead><tr><th>Curso</th><th>Asignatura</th><th>Logro (%)</th><th>Puntaje SIMCE</th><th>Estudiantes <50%</th><th>Preguntas Críticas</th><th>Estado</th></tr></thead>
+            {% else %}
+            <div class="row g-4 mb-4">
+                <div class="col-md-3"><div class="card card-premium p-4"><div class="kpi-title">Promedio MAT</div><div class="kpi-value alert-red">{{ stats.promedio_matematica }}%</div></div></div>
+                <div class="col-md-3"><div class="card card-premium p-4"><div class="kpi-title">Promedio LEN</div><div class="kpi-value">{{ stats.promedio_lenguaje }}%</div></div></div>
+                <div class="col-md-3"><div class="card card-premium p-4"><div class="kpi-title">Cursos Críticos (MAT)</div><div class="kpi-value alert-red">{{ stats.cursos_criticos }}</div></div></div>
+                <div class="col-md-3"><div class="card card-premium p-4"><div class="kpi-title">Volumen Riesgo</div><div class="kpi-value">{{ stats.total_riesgo }}</div></div></div>
+            </div>
+            <div class="row g-4 mb-4">
+                <div class="col-md-6"><div class="card card-premium p-5 h-100"><h5 class="section-title mb-4">Logro por Curso (%)</h5><div style="height: 300px;"><canvas id="cursoChart"></canvas></div><p class="chart-summary"><strong>Métrica:</strong> Porcentaje de logro promedio por nivel, contrastando MAT vs LEN.</p></div></div>
+                <div class="col-md-6"><div class="card card-premium p-5 h-100"><h5 class="section-title mb-4" style="color: var(--ccl-red);">Preguntas Críticas (<40% logro)</h5><div style="height: 300px;"><canvas id="preguntasChart"></canvas></div><p class="chart-summary"><strong>Métrica:</strong> Volumen exacto de ítems donde menos del 40% del curso respondió correctamente.</p></div></div>
+            </div>
+            <div class="row g-4 mb-4">
+                <div class="col-md-8"><div class="card card-premium p-5 h-100"><h5 class="section-title mb-4">Brechas entre Paralelos (Pts)</h5><div style="height: 250px;"><canvas id="brechasChart"></canvas></div><p class="chart-summary"><strong>Métrica:</strong> Diferencia en puntaje SIMCE entre cursos paralelos (Ej: 4° A vs 4° B). Alerta de falta de estandarización.</p></div></div>
+                <div class="col-md-4"><div class="card card-premium p-5 h-100"><h5 class="section-title mb-4">Proporción Riesgo MAT</h5><div style="height: 250px;"><canvas id="riesgoChart"></canvas></div><p class="chart-summary"><strong>Métrica:</strong> Alumnado institucional bajo el umbral mínimo de logro (50%) en Matemática.</p></div></div>
+            </div>
+            {% endif %}
+
+            <div class="card card-premium overflow-hidden p-3 mt-4">
+                <table class="table table-premium table-borderless table-hover m-0">
+                    <thead style="background-color: transparent;"><tr><th class="ps-4 py-3">Nivel</th><th class="py-3">Área</th><th class="py-3">Logro</th><th class="py-3">SIMCE</th><th class="py-3">Estudiantes <50%</th><th class="py-3">Ítems Críticos</th><th class="py-3">Gestión</th></tr></thead>
                     <tbody>
                     {% for fila in tabla_resultados %}
                     <tr>
-                        <td class="fw-bold">{{ fila.curso.nivel }}</td><td>{{ fila.get_asignatura_display }}</td><td>{{ fila.porcentaje_logro|floatformat:1 }}%</td><td>{{ fila.puntaje_simce|floatformat:1 }}</td><td>{{ fila.estudiantes_riesgo }} alumnos</td><td>{{ fila.preguntas_criticas }} ítems</td>
-                        <td>
-                            {% if fila.porcentaje_logro < 40 %}<span class="badge badge-riesgo">Urgente</span>{% elif fila.porcentaje_logro < 55 %}<span class="badge bg-warning text-dark">Atención</span>{% else %}<span class="badge bg-success">Controlado</span>{% endif %}
-                        </td>
+                        <td class="ps-4 py-3 fw-bold">{{ fila.curso.nivel }}</td><td class="py-3">{{ fila.get_asignatura_display }}</td><td class="py-3">{{ fila.porcentaje_logro|floatformat:1 }}%</td><td class="py-3">{{ fila.puntaje_simce|floatformat:1 }}</td><td class="py-3">{{ fila.estudiantes_riesgo }}</td><td class="py-3">{{ fila.preguntas_criticas }}</td>
+                        <td class="py-3">{% if fila.porcentaje_logro < 40 %}<span class="badge badge-riesgo">Crítico</span>{% elif fila.porcentaje_logro < 55 %}<span class="badge badge-warning-custom">Atención</span>{% else %}<span class="badge badge-ok">Estable</span>{% endif %}</td>
                     </tr>
-                    {% empty %}
-                    <tr><td colspan="7" class="text-center py-4">No hay datos para esta selección.</td></tr>
-                    {% endfor %}
+                    {% empty %}<tr><td colspan="7" class="text-center py-5 text-muted">No hay registros para este filtro.</td></tr>{% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
 
         <div class="tab-pane fade" id="estrategia" role="tabpanel">
+            <div class="card card-premium p-5 mb-4">
+                <h5 class="section-title mb-4">Plan Estratégico 30-60-90 Días</h5>
+                <div class="table-responsive">
+                    <table class="table table-premium table-borderless align-middle m-0">
+                        <thead><tr><th>Plazo</th><th>Foco de Intervención</th><th>Acción Pedagógica</th><th>Responsabilidad</th></tr></thead>
+                        <tbody>{% for p in plan_accion %}<tr><td class="fw-bold" style="color: var(--ccl-blue);">{{ p.plazo }}</td><td class="fw-bold">{{ p.foco }}</td><td>{{ p.accion }}</td><td style="color: var(--text-muted);">{{ p.resp }}</td></tr>{% endfor %}</tbody>
+                    </table>
+                </div>
+            </div>
             <div class="row g-4">
-                <div class="col-md-6">
-                    <div class="card card-institucional p-4 h-100">
-                        <h5 class="fw-bold mb-4" style="color: var(--primary-color);">Análisis de Brechas entre Paralelos</h5>
-                        <table class="table table-sm table-hover align-middle">
-                            <thead class="table-light"><tr><th>Nivel</th><th>Asignatura</th><th>Brecha</th><th>Diagnóstico</th></tr></thead>
-                            <tbody>
-                            {% for b in brechas %}
-                            <tr><td class="fw-bold">{{ b.nivel }}</td><td>{{ b.asignatura }}</td><td><span class="badge {% if b.brecha > 5 %}badge-riesgo{% else %}bg-secondary{% endif %}">{{ b.brecha }} pts</span></td><td class="small">{{ b.lectura }}</td></tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card card-institucional p-4 h-100">
-                        <h5 class="fw-bold mb-4" style="color: var(--primary-color);">Sistema de Alertas Tempranas</h5>
-                        <table class="table table-sm table-hover align-middle">
-                            <thead class="table-light"><tr><th>Nivel</th><th>Criterio</th><th>Acción Directiva</th></tr></thead>
-                            <tbody>
-                            {% for a in alertas %}
-                            <tr>
-                                <td><span class="badge {% if a.nivel == 'Alto' or a.nivel == 'Institucional' %}badge-riesgo{% else %}bg-warning text-dark{% endif %}">{{ a.nivel }}</span></td>
-                                <td class="small fw-bold">{{ a.criterio }}</td><td class="small">{{ a.accion }}</td>
-                            </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="col-md-12">
-                    <div class="card card-institucional p-4">
-                        <h5 class="fw-bold mb-4" style="color: var(--primary-color);">Plan Estratégico 30-60-90 Días</h5>
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light"><tr><th>Plazo</th><th>Foco / Curso</th><th>Acción Pedagógica</th><th>Responsable</th></tr></thead>
-                            <tbody>
-                            {% for p in plan_accion %}
-                            <tr><td class="fw-bold text-primary">{{ p.plazo }}</td><td>{{ p.foco }}</td><td>{{ p.accion }}</td><td class="small text-muted">{{ p.resp }}</td></tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <div class="col-md-6"><div class="card card-premium p-5 h-100"><h5 class="section-title mb-4">Diagnóstico de Brechas</h5><table class="table table-premium table-borderless align-middle m-0"><thead><tr><th>Nivel</th><th>Asignatura</th><th>Diferencia</th></tr></thead><tbody>{% for b in brechas %}<tr><td class="fw-bold">{{ b.nivel }}</td><td>{{ b.asignatura }}</td><td><span class="badge {% if b.brecha > 5 %}badge-riesgo{% else %}badge-ok{% endif %} fs-6">{{ b.brecha }} pts</span></td></tr>{% endfor %}</tbody></table></div></div>
+                <div class="col-md-6"><div class="card card-premium p-5 h-100"><h5 class="section-title mb-4">Protocolo de Alertas</h5><table class="table table-premium table-borderless align-middle m-0"><thead><tr><th>Nivel de Riesgo</th><th>Criterio de Activación</th></tr></thead><tbody>{% for a in alertas %}<tr><td><span class="badge {% if a.nivel == 'Alto' or a.nivel == 'Institucional' %}badge-riesgo{% else %}badge-warning-custom{% endif %} p-2 px-3">{{ a.nivel }}</span></td><td>{{ a.criterio }}</td></tr>{% endfor %}</tbody></table></div></div>
             </div>
         </div>
 
         <div class="tab-pane fade" id="informe" role="tabpanel">
-            <div class="informe-container">
-                <div class="text-center mb-5 border-bottom pb-4">
-                    <h1 class="fw-bold" style="color: var(--primary-color); font-family: 'Inter', sans-serif;">Informe Ejecutivo de Análisis de Resultados SIMCE</h1>
-                    <p class="text-muted">Ensayos de Matemática y Lenguaje - Mayo 2026</p>
-                </div>
+            <div class="card card-premium p-5">
+                <div class="informe-container" style="box-shadow: none; padding: 0;">
+                    <div class="text-center mb-5 pb-4" style="border-bottom: 2px solid #E5E7EB;">
+                        <h1 class="fw-bold mb-3" style="font-family: 'Merriweather', serif; color: var(--ccl-blue); font-size: 2.5rem;">Informe Ejecutivo Institucional</h1>
+                        <p class="kpi-title m-0">Consolidado General - Mayo 2026</p>
+                    </div>
 
-                <h2>1. Resumen Ejecutivo</h2>
-                <p>El análisis evidencia una brecha institucional relevante entre asignaturas: Matemática presenta un promedio aproximado de logro de 41.0%, mientras que Lenguaje alcanza 56.1%. Esta diferencia exige declarar Matemática como prioridad técnica inmediata, especialmente en II° medio y 6° básico.</p>
-                <p>El comportamiento de los datos no es homogéneo. Existen cursos con desempeño crítico, cursos con brechas entre paralelos y niveles donde la cantidad de preguntas bajo 40% muestra debilidades estructurales más que errores puntuales.</p>
+                    <h4 class='mt-5 mb-4 section-title'>1. Resumen ejecutivo</h4>
+                    <p style="font-size: 1.1rem; line-height: 1.8;">El análisis evidencia una brecha institucional relevante entre asignaturas: Matemática presenta un promedio aproximado de logro de 41.0%, mientras que Lenguaje alcanza 56.1%. Esta diferencia exige declarar Matemática como prioridad técnica inmediata, especialmente en II° medio y 6° básico.</p>
+                    <p style="font-size: 1.1rem; line-height: 1.8;">El comportamiento de los datos no es homogéneo. Existen cursos con desempeño crítico, cursos con brechas entre paralelos y niveles donde la cantidad de preguntas bajo 40% muestra debilidades estructurales más que errores puntuales.</p>
 
-                <h2>2. Diagnóstico Institucional</h2>
-                <p>La institución debe pasar desde una lógica de aplicación de ensayos hacia una <strong>lógica de gestión intensiva de brechas</strong>. Cada ensayo debe traducirse en decisiones de reenseñanza, acompañamiento docente y ajuste de planificación.</p>
-                <p>La principal señal crítica se concentra en Matemática, donde <strong>II° medio A, II° medio B y 6° A</strong> presentan niveles de logro bajo 40%. Esto configura un riesgo directo para la trayectoria académica y futuros resultados PAES.</p>
+                    <div class='table-responsive mb-4'><table class='table table-premium table-borderless align-middle mt-3'>
+                        <thead><tr><th>Prioridad</th><th>Curso</th><th>Área</th><th>Logro</th><th>SIMCE</th><th>Evidencia clave</th><th>Decisión sugerida</th></tr></thead>
+                        <tbody>
+                        <tr><td><span class="badge badge-riesgo">Urgente</span></td><td>II° Medio B</td><td>MAT</td><td>30.6%</td><td>223.8</td><td>29 preguntas &lt;40%; 36 estudiantes &lt;50%</td><td>Plan intensivo de rescate</td></tr>
+                        <tr><td><span class="badge badge-riesgo">Urgente</span></td><td>II° Medio A</td><td>MAT</td><td>31.0%</td><td>273.6</td><td>28 preguntas &lt;40%; 28 estudiantes &lt;50%</td><td>Plan intensivo de rescate</td></tr>
+                        <tr><td><span class="badge badge-riesgo">Urgente</span></td><td>6° A</td><td>MAT</td><td>35.7%</td><td>242.4</td><td>24 preguntas &lt;40%; 27 estudiantes &lt;50%</td><td>Plan intensivo de rescate</td></tr>
+                        <tr><td><span class="badge badge-warning-custom">Atención</span></td><td>6° B</td><td>MAT</td><td>44.5%</td><td>251.4</td><td>15 preguntas &lt;40%; 16 estudiantes &lt;50%</td><td>Plan intensivo de rescate</td></tr>
+                        <tr><td><span class="badge badge-warning-custom">Atención</span></td><td>II° Medio B</td><td>LEN</td><td>46.8%</td><td>234.6</td><td>13 preguntas &lt;40%; 16 estudiantes &lt;50%</td><td>Plan lector focalizado</td></tr>
+                        <tr><td><span class="badge badge-warning-custom">Atención</span></td><td>4° B</td><td>MAT</td><td>48.4%</td><td>255.6</td><td>10 preguntas &lt;40%; 15 estudiantes &lt;50%</td><td>Plan intensivo de rescate</td></tr>
+                        </tbody></table></div>
 
-                <h2>3. Conclusión y Estrategia Inmediata</h2>
-                <p>La mejora rápida es posible si el establecimiento transforma los datos en decisiones semanales. El foco no debe ser aplicar más ensayos, sino convertir cada resultado en reenseñanza, retroalimentación y acompañamiento docente.</p>
-                <div class="alert alert-danger mt-4" role="alert">
-                    <strong>Prioridad Inmediata:</strong> Implementar un Plan de Rescate Matemático de 8 semanas, con diagnóstico por OA, reenseñanza focalizada y miniensayos semanales.
+                    <h4 class='mt-5 mb-4 section-title'>2. Diagnóstico institucional</h4>
+                    <p style="font-size: 1.1rem; line-height: 1.8;">La institución debe pasar desde una lógica de aplicación de ensayos hacia una <strong>lógica de gestión intensiva de brechas</strong>. Cada ensayo debe traducirse en decisiones de reenseñanza, acompañamiento docente, ajuste de planificación y seguimiento por estudiante.</p>
+                    <p style="font-size: 1.1rem; line-height: 1.8;">La principal señal crítica se concentra en Matemática, donde II° medio A, II° medio B y 6° A presentan niveles de logro bajo 40%. Esto configura un riesgo directo para trayectoria académica, futuros resultados PAES y percepción de excelencia institucional.</p>
+                    <p style="font-size: 1.1rem; line-height: 1.8;">Lenguaje muestra una base más favorable, pero II° B aparece como curso prioritario debido a su desempeño descendido respecto de otros niveles y paralelos.</p>
+
+                    <h4 class='mt-5 mb-4 section-title'>3. Análisis SIMCE Matemática</h4>
+                    <div class='table-responsive mb-4'><table class='table table-premium table-borderless align-middle mt-3'>
+                        <thead><tr><th>Curso</th><th>Logro</th><th>SIMCE</th><th>Preg. &lt;40%</th><th>Preg. &lt;50%</th><th>Lectura</th></tr></thead>
+                        <tbody>
+                        <tr><td>2° Medio B</td><td>30.6%</td><td>223.8</td><td>29</td><td>32</td><td><span class="badge badge-riesgo">Riesgo crítico</span></td></tr>
+                        <tr><td>2° Medio A</td><td>31.0%</td><td>273.6</td><td>28</td><td>33</td><td><span class="badge badge-riesgo">Riesgo crítico</span></td></tr>
+                        <tr><td>6° A</td><td>35.7%</td><td>242.4</td><td>24</td><td>30</td><td><span class="badge badge-riesgo">Riesgo crítico</span></td></tr>
+                        <tr><td>6° B</td><td>44.5%</td><td>251.4</td><td>15</td><td>24</td><td><span class="badge badge-warning-custom">Riesgo alto</span></td></tr>
+                        <tr><td>4° B</td><td>48.4%</td><td>255.6</td><td>10</td><td>18</td><td><span class="badge badge-warning-custom">Riesgo alto</span></td></tr>
+                        <tr><td>4° A</td><td>55.7%</td><td>274.3</td><td>12</td><td>14</td><td><span class="badge badge-ok">Riesgo medio</span></td></tr>
+                        </tbody></table></div>
+                    <p style="font-size: 1.1rem; line-height: 1.8;"><strong>Conclusión técnica:</strong> Matemática requiere intervención institucional inmediata. En II° medio, más de 28 preguntas de 35 están bajo 40% en ambos cursos. En 6° A, 24 preguntas están bajo 40% y 30 bajo 50%, lo que muestra una debilidad basal acumulada.</p>
+                    <p style="font-size: 1.1rem; line-height: 1.8;"><strong>Decisión recomendada:</strong> implementar un Plan de Rescate Matemático de 8 semanas, con diagnóstico por OA, reenseñanza focalizada, práctica guiada, miniensayos semanales y retroalimentación dentro de 48 horas.</p>
+
+                    <h4 class='mt-5 mb-4 section-title'>4. Análisis SIMCE Lenguaje</h4>
+                    <div class='table-responsive mb-4'><table class='table table-premium table-borderless align-middle mt-3'>
+                        <thead><tr><th>Curso</th><th>Logro</th><th>SIMCE</th><th>Preg. &lt;40%</th><th>Preg. &lt;50%</th><th>Lectura</th></tr></thead>
+                        <tbody>
+                        <tr><td>2° Medio B</td><td>46.8%</td><td>234.6</td><td>13</td><td>17</td><td><span class="badge badge-warning-custom">Riesgo alto</span></td></tr>
+                        <tr><td>2° Medio A</td><td>53.7%</td><td>259.8</td><td>9</td><td>14</td><td><span class="badge badge-ok">Riesgo medio</span></td></tr>
+                        <tr><td>4° B</td><td>55.5%</td><td>263.4</td><td>7</td><td>9</td><td><span class="badge badge-ok">Riesgo medio</span></td></tr>
+                        <tr><td>6° B</td><td>55.8%</td><td>240.1</td><td>3</td><td>10</td><td><span class="badge badge-ok">Riesgo medio</span></td></tr>
+                        <tr><td>6° A</td><td>61.6%</td><td>260.6</td><td>4</td><td>8</td><td><span class="badge badge-ok">Mejor desempeño</span></td></tr>
+                        <tr><td>4° A</td><td>63.4%</td><td>246.0</td><td>5</td><td>10</td><td><span class="badge badge-ok">Mejor desempeño</span></td></tr>
+                        </tbody></table></div>
+                    <p style="font-size: 1.1rem; line-height: 1.8;"><strong>Conclusión técnica:</strong> Lenguaje posee mejores condiciones de base, pero no debe ser considerado consolidado. II° B requiere intervención prioritaria en comprensión profunda, inferencia, texto argumentativo, vocabulario contextual y uso de evidencia textual.</p>
+
+                    <h4 class='mt-5 mb-4 section-title'>5. Brechas críticas y patrones relevantes</h4>
+                    <div class='table-responsive mb-4'><table class='table table-premium table-borderless align-middle mt-3'>
+                        <thead><tr><th>Nivel</th><th>Asignatura</th><th>Curso A</th><th>Logro A</th><th>Curso B</th><th>Logro B</th><th>Brecha</th></tr></thead>
+                        <tbody>
+                        <tr><td>4° básico</td><td>Matemática</td><td>4° A</td><td>55.7%</td><td>4° B</td><td>48.4%</td><td><span class="badge badge-riesgo">7.3 pts</span></td></tr>
+                        <tr><td>6° básico</td><td>Matemática</td><td>6° A</td><td>35.7%</td><td>6° B</td><td>44.5%</td><td><span class="badge badge-riesgo">8.8 pts</span></td></tr>
+                        <tr><td>II° medio</td><td>Matemática</td><td>2° Medio A</td><td>31.0%</td><td>2° Medio B</td><td>30.6%</td><td><span class="badge badge-ok">0.4 pts</span></td></tr>
+                        <tr><td>4° básico</td><td>Lenguaje</td><td>4° A</td><td>63.4%</td><td>4° B</td><td>55.5%</td><td><span class="badge badge-riesgo">7.9 pts</span></td></tr>
+                        <tr><td>6° básico</td><td>Lenguaje</td><td>6° A</td><td>61.6%</td><td>6° B</td><td>55.8%</td><td><span class="badge badge-warning-custom">5.8 pts</span></td></tr>
+                        <tr><td>II° medio</td><td>Lenguaje</td><td>2° Medio A</td><td>53.7%</td><td>2° Medio B</td><td>46.8%</td><td><span class="badge badge-riesgo">6.9 pts</span></td></tr>
+                        </tbody></table></div>
+                    <p style="font-size: 1.1rem; line-height: 1.8;">Patrón 1: Matemática muestra una brecha estructural respecto de Lenguaje.<br>Patrón 2: 6° A y II° medio son focos críticos de continuidad académica.<br>Patrón 3: II° B debe ser observado integralmente, pues presenta bajo desempeño en Matemática y Lenguaje.</p>
+
+                    <h4 class='mt-5 mb-4 section-title'>6. Priorización de problemas</h4>
+                    <div class='table-responsive mb-4'><table class='table table-premium table-borderless align-middle mt-3'>
+                        <thead><tr><th>Nivel</th><th>Problema</th><th>Decisión</th><th>Responsable</th><th>Plazo</th></tr></thead>
+                        <tbody>
+                        <tr><td><span class="badge badge-riesgo">Urgente</span></td><td>II° medio Matemática</td><td>Plan intensivo de rescate matemático</td><td>Rectoría / UTP</td><td>8 semanas</td></tr>
+                        <tr><td><span class="badge badge-riesgo">Urgente</span></td><td>6° A Matemática</td><td>Reenseñanza de habilidades basales</td><td>UTP / Docente</td><td>30-60 días</td></tr>
+                        <tr><td><span class="badge badge-riesgo">Urgente</span></td><td>II° B Lenguaje</td><td>Plan lector focalizado e inferencia semanal</td><td>UTP / Depto.</td><td>30-60 días</td></tr>
+                        <tr><td><span class="badge badge-warning-custom">Importante</span></td><td>Brechas entre paralelos</td><td>Evaluaciones comunes, observación de aula</td><td>UTP</td><td>60 días</td></tr>
+                        <tr><td><span class="badge badge-ok">Estratégico</span></td><td>Integración de datos</td><td>Tablero institucional integrado</td><td>Rectoría / UTP</td><td>90 días</td></tr>
+                        </tbody></table></div>
+
+                    <h4 class='mt-5 mb-4 section-title'>7. Plan de acción 30, 60 y 90 días</h4>
+                    <div class='table-responsive mb-4'><table class='table table-premium table-borderless align-middle mt-3'>
+                        <thead><tr><th>Plazo</th><th>Acción</th><th>Responsable</th><th>Evidencia</th></tr></thead>
+                        <tbody>
+                        <tr><td><strong>30 días</strong></td><td>Instalar Mesa de Datos Académicos semanal; segmentar estudiantes por riesgo; iniciar reenseñanza en Matemática II° medio y 6° A.</td><td>Rectoría / UTP</td><td>Miniensayos</td></tr>
+                        <tr><td><strong>60 días</strong></td><td>Aplicar evaluaciones comunes; observar clases focalizadas; comparar cursos paralelos; retroalimentar prácticas docentes.</td><td>UTP / Deptos.</td><td>Actas técnicas</td></tr>
+                        <tr><td><strong>90 días</strong></td><td>Aplicar nuevo ensayo institucional; comparar contra línea base; ajustar estrategias y presentar informe al sostenedor.</td><td>Rectoría / UTP</td><td>Variación de logro</td></tr>
+                        <tr><td><strong>6 meses</strong></td><td>Integrar asistencia, notas, cobertura curricular, convivencia y reforzamientos en un tablero único.</td><td>Directivo</td><td>Dashboard</td></tr>
+                        <tr><td><strong>12 meses</strong></td><td>Consolidar cultura de altas expectativas, evaluación común, CPA y metas por departamento.</td><td>Sostenedor</td><td>Cuenta avance</td></tr>
+                        </tbody></table></div>
+
+                    <h4 class='mt-5 mb-4 section-title'>8. Tablero de control directivo recomendado</h4>
+                    <div class='table-responsive mb-4'><table class='table table-premium table-borderless align-middle mt-3'>
+                        <thead><tr><th>Dimensión</th><th>Indicador</th><th>Frecuencia</th><th>Meta</th><th>Responsable</th></tr></thead>
+                        <tbody>
+                        <tr><td>SIMCE</td><td>Logro promedio por curso</td><td>Mensual</td><td>+10 puntos en críticos</td><td>UTP</td></tr>
+                        <tr><td>SIMCE</td><td>Preguntas bajo 40%</td><td>Ensayo</td><td>Reducir 30%</td><td>UTP</td></tr>
+                        <tr><td>Matemática</td><td>Dominio habilidades basales</td><td>Quincenal</td><td>&gt;=60%</td><td>Depto. Matemática</td></tr>
+                        <tr><td>Lenguaje</td><td>Comprensión lectora</td><td>Quincenal</td><td>&gt;=65%</td><td>Depto. Lenguaje</td></tr>
+                        <tr><td>Gestión</td><td>Evaluaciones comunes</td><td>Mensual</td><td>100% aplicadas</td><td>UTP</td></tr>
+                        <tr><td>Cobertura</td><td>OA abordados</td><td>Mensual</td><td>&gt;=90%</td><td>UTP</td></tr>
+                        <tr><td>Asistencia</td><td>Asistencia curso crítico</td><td>Semanal</td><td>&gt;=92%</td><td>Inspectoría</td></tr>
+                        </tbody></table></div>
+
+                    <h4 class='mt-5 mb-4 section-title'>9. Sistema de alertas tempranas</h4>
+                    <div class='table-responsive mb-4'><table class='table table-premium table-borderless align-middle mt-3'>
+                        <thead><tr><th>Nivel</th><th>Criterio</th><th>Acción</th></tr></thead>
+                        <tbody>
+                        <tr><td><span class="badge badge-riesgo">Alto</span></td><td>Estudiante bajo 40% o curso bajo 40%</td><td>Plan individual/grupal, entrevista familia, monitoreo semanal</td></tr>
+                        <tr><td><span class="badge badge-warning-custom">Medio</span></td><td>Estudiante entre 40% y 55%</td><td>Grupo de nivelación, práctica guiada, evaluación quincenal</td></tr>
+                        <tr><td><span class="badge badge-ok">Bajo</span></td><td>Estudiante entre 55% y 70%</td><td>Consolidación, desafíos graduados y seguimiento mensual</td></tr>
+                        <tr><td><span class="badge badge-ok">Alto potencial</span></td><td>Estudiante sobre 70%</td><td>Desafíos avanzados, tutoría entre pares</td></tr>
+                        </tbody></table></div>
+
+                    <h4 class='mt-5 mb-4 section-title'>10. Recomendaciones por actor institucional</h4>
+                    <p style="font-size: 1.1rem; line-height: 1.8;"><strong>Rectoría:</strong> Declarar Matemática como prioridad institucional; exigir planes remediales con evidencia; monitorear semanalmente II° medio Matemática, 6° A Matemática y II° B Lenguaje; reportar avances al sostenedor.</p>
+                    <p style="font-size: 1.1rem; line-height: 1.8;"><strong>UTP:</strong> Construir matriz por curso, pregunta, OA, habilidad y contenido; coordinar evaluaciones comunes; verificar retroalimentación docente; observar clases focalizadas y liderar comunidades profesionales de aprendizaje.</p>
+                    <p style="font-size: 1.1rem; line-height: 1.8;"><strong>Inspectoría General:</strong> Cruzar asistencia, atrasos y participación en reforzamientos con resultados de ensayo para detectar riesgo académico y ausentismo crítico.</p>
+                    <p style="font-size: 1.1rem; line-height: 1.8;"><strong>Convivencia Escolar:</strong> Levantar información de clima de aula en cursos críticos, especialmente II° B, para determinar si el rendimiento se vincula con factores socioemocionales o disciplinarios.</p>
+                    <p style="font-size: 1.1rem; line-height: 1.8;"><strong>Docentes:</strong> Trabajar con foco en evidencia, reenseñanza, evaluación común, retroalimentación oportuna y altas expectativas; evitar avanzar contenidos sin verificar aprendizajes basales.</p>
+                    <p style="font-size: 1.1rem; line-height: 1.8;"><strong>Sostenedor:</strong> Respaldar horas de reforzamiento, tiempo protegido de trabajo técnico, eventual apoyo externo en Matemática y sistema de seguimiento institucional.</p>
+
+                    <h4 class='mt-5 mb-4 section-title'>11. Conclusión estratégica</h4>
+                    <p style="font-size: 1.1rem; line-height: 1.8;">La mejora rápida es posible si el establecimiento transforma los datos en decisiones semanales. El foco no debe ser aplicar más ensayos, sino convertir cada resultado en reenseñanza, retroalimentación, acompañamiento docente y seguimiento por estudiante. La prioridad inmediata es Matemática, con foco crítico en II° medio y 6° A, sin descuidar Lenguaje en II° B.</p>
+                    <p style="font-size: 1.1rem; line-height: 1.8;">El archivo Excel complementario contiene las bases operativas para el seguimiento: dashboard ejecutivo, resumen SIMCE, ejes, preguntas, brechas, plan 30-60-90, alertas y tablero KPI.</p>
                 </div>
             </div>
         </div>
@@ -191,25 +353,68 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    const ctxCursos = document.getElementById('cursoChart').getContext('2d');
-    new Chart(ctxCursos, {
-        type: 'bar',
-        data: {
-            labels: JSON.parse('{{ cursos_labels|safe }}'),
-            datasets: [
-                { label: 'Matemática (%)', data: JSON.parse('{{ logro_matematica|safe }}'), backgroundColor: '#e04f5f', borderRadius: 4 },
-                { label: 'Lenguaje (%)', data: JSON.parse('{{ logro_lenguaje|safe }}'), backgroundColor: '#0f2c59', borderRadius: 4 }
-            ]
-        },
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
-    });
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = '#6B7280';
+    const cclBlue = '#002B5C';
+    const cclRed = '#C8102E';
+    const cclGold = '#D4AF37';
+    const cclGreen = '#10B981';
 
-    const ctxRiesgo = document.getElementById('riesgoChart').getContext('2d');
-    new Chart(ctxRiesgo, {
-        type: 'doughnut',
-        data: { labels: JSON.parse('{{ riesgo_labels|safe }}'), datasets: [{ data: JSON.parse('{{ riesgo_data|safe }}'), backgroundColor: ['#e04f5f', '#27ae60'], borderWidth: 0 }] },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '70%' }
-    });
+    const mostrarDetalle = "{{ mostrar_detalle }}" === "True";
+    const mostrarEstudiante = "{{ mostrar_estudiante }}" === "True";
+
+    if (!mostrarEstudiante) {
+        if (mostrarDetalle) {
+            new Chart(document.getElementById('habilidadesChart').getContext('2d'), {
+                type: 'bar',
+                data: { labels: JSON.parse('{{ hab_labels|safe }}'), datasets: [{ data: JSON.parse('{{ hab_data|safe }}'), backgroundColor: cclBlue, borderRadius: 6 }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { max: 100, grid: { color: '#F3F4F6' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } }
+            });
+
+            new Chart(document.getElementById('contenidosChart').getContext('2d'), {
+                type: 'bar',
+                data: { labels: JSON.parse('{{ cont_labels|safe }}'), datasets: [{ data: JSON.parse('{{ cont_data|safe }}'), backgroundColor: cclGold, borderRadius: 6 }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { max: 100, grid: { color: '#F3F4F6' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } }
+            });
+
+            new Chart(document.getElementById('preguntasCursoChart').getContext('2d'), {
+                type: 'doughnut',
+                data: { labels: ['<40% Logro (Crítico)', 'Sobre 40%'], datasets: [{ data: [{{ detalle_informe.preg_criticas_val }}, {{ detalle_informe.preg_resto_val }}], backgroundColor: [cclRed, cclGreen], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } } }
+        });
+
+            new Chart(document.getElementById('estudiantesChart').getContext('2d'), {
+                type: 'bar',
+                data: { labels: JSON.parse('{{ est_nombres|safe }}'), datasets: [{ label: 'Puntaje SIMCE', data: JSON.parse('{{ est_puntajes|safe }}'), backgroundColor: cclBlue, borderRadius: 6 }] },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { max: 400, grid: { color: '#F3F4F6' } }, y: { grid: { display: false } } }, plugins: { legend: { display: false } } }
+            });
+
+        } else {
+            new Chart(document.getElementById('cursoChart').getContext('2d'), {
+                type: 'bar',
+                data: { labels: JSON.parse('{{ detalle_informe.cursos_labels|safe }}'), datasets: [{ label: 'Matemática', data: JSON.parse('{{ detalle_informe.logro_matematica|safe }}'), backgroundColor: cclRed, borderRadius: 6 }, { label: 'Lenguaje', data: JSON.parse('{{ detalle_informe.logro_lenguaje|safe }}'), backgroundColor: cclBlue, borderRadius: 6 }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { max: 100, grid: { color: '#F3F4F6' } }, x: { grid: { display: false } } }, plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8 } } } }
+            });
+
+            new Chart(document.getElementById('riesgoChart').getContext('2d'), {
+                type: 'doughnut',
+                data: { labels: JSON.parse('{{ detalle_informe.riesgo_labels|safe }}'), datasets: [{ data: JSON.parse('{{ detalle_informe.riesgo_data|safe }}'), backgroundColor: [cclRed, cclGreen], borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } } }
+            });
+
+            new Chart(document.getElementById('preguntasChart').getContext('2d'), {
+                type: 'bar',
+                data: { labels: JSON.parse('{{ detalle_informe.cursos_labels|safe }}'), datasets: [{ label: 'Ítems MAT <40%', data: JSON.parse('{{ detalle_informe.preg_criticas_mat|safe }}'), backgroundColor: 'rgba(200, 16, 46, 0.8)', borderRadius: 6 }, { label: 'Ítems LEN <40%', data: JSON.parse('{{ detalle_informe.preg_criticas_len|safe }}'), backgroundColor: 'rgba(0, 43, 92, 0.8)', borderRadius: 6 }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: '#F3F4F6' } }, x: { grid: { display: false } } }, plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8 } } } }
+            });
+
+            new Chart(document.getElementById('brechasChart').getContext('2d'), {
+                type: 'bar',
+                data: { labels: JSON.parse('{{ detalle_informe.brechas_labels|safe }}'), datasets: [{ label: 'Puntos Brecha', data: JSON.parse('{{ detalle_informe.brechas_data|safe }}'), backgroundColor: cclGold, borderRadius: 8, barThickness: 16 }] },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { grid: { color: '#F3F4F6' } }, y: { grid: { display: false } } }, plugins: { legend: { display: false } } }
+            });
+        }
+    }
 </script>
 </body>
 </html>
